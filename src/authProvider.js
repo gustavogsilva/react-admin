@@ -1,9 +1,19 @@
+import { capitalize } from './utils/string';
+
 export default {
   // called when the user attempts to log in
   login: ({ username }) => {
-    localStorage.setItem('username', username);
-    // accept all username/password combinations
-    return Promise.resolve();
+    return fetch(`https://jsonplaceholder.typicode.com/users?email=${capitalize(username)}`)
+      .then(response => {
+        if (response.status < 200 || response.status >= 300) {
+          throw new Error(response.statusText);
+        }
+        return response.json();
+      })
+      .then(user => {
+        if (user.length === 0) throw new Error('Incorrect credentials.');
+        localStorage.setItem('username', username);
+      });
   },
   // called when the user clicks on the logout button
   logout: () => {
